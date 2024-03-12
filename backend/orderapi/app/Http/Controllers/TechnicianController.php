@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class TechnicianController extends Controller
 {
     private $rules = [
-        'document' => 'required|integer|max:99999999999999999999|min:3',
+        'document' => 'required|integer|max:99999999999999999999|min:1',
         'name' => 'required|string|max:80|min:3',
         'especiality' => 'string|max:50|min:2',
         'phone' => 'string|max:30|min:4',

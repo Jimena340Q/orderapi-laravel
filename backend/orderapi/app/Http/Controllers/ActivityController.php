@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Observation;
+use App\Models\Activity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class ObservationController extends Controller
+class ActivityController extends Controller
 {
     private $rules = [
-        'description' => 'required|string|max:50|min:3',
+        'description' => 'required|string|max:100|min:3',
+        'hours' => 'required|numeric|max:9999999999|min:1',
+        'technician_id' => 'required|numeric|max:99999999999999999999',
+        'type_id' => 'required|numeric|max:99999999999999999999',
     ];
     private $traductionAttributes = [
         'description' => 'descripcion',
+        'hours' => 'horas',
+        'technician_id' => 'técnico',
+        'type_id' => 'tipo',
     ];
 
     public function applyValidator(Request $request)
@@ -28,17 +34,15 @@ class ObservationController extends Controller
                 'data' => $request->all()
             ], Response::HTTP_BAD_REQUEST);
         }
-
-        return $data;
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $observations = Observation::all();
-        return response()->json($observations , Response::HTTP_OK);
-
+        $activities = Activity::all();
+        $activities->load(['technician' , 'type_activity']);
+        return response()->json($activities , Response::HTTP_OK);
     }
 
     /**
@@ -52,26 +56,28 @@ class ObservationController extends Controller
             return $data;
         }
         
-        $observation = Observation::create($request->all());
+        $activity = Activity::create($request->all());
         $response = [
             'message' => 'Registro creado exitosamente',
-            'observation' => $observation
+            'activity' => $activity
         ];
         return response()->json($response, Response::HTTP_CREATED);
+    
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Observation $observation)
+    public function show(Activity $activity)
     {
-        return response()->json($observation, Response::HTTP_OK);
+        $activity->load(['technician' , 'type_activity']);
+        return response()->json($activity , Response::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Observation $observation)
+    public function update(Request $request, Activity $activity)
     {
         $data = $this->applyValidator($request);
         if(!empty($data))
@@ -79,10 +85,10 @@ class ObservationController extends Controller
             return $data;
         }
         
-        $observation->update($request->all());
+        $activity->update($request->all());
         $response = [
             'message' => 'Registro actualizado exitosamente',
-            'observation' => $observation
+            'activity' => $activity
         ];
         return response()->json($response, Response::HTTP_OK);
     }
@@ -90,13 +96,13 @@ class ObservationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Observation $observation)
+    public function destroy(Activity $activity)
     {
-        $observation->delete();
+        $activity->delete();
         $response = [
             'message' => 'Registro eliminado exitosamente',
-            'observation' => $observation->id
+            'activity' => $activity->id
         ];
         return response()->json($response, Response::HTTP_OK);
-        }
+    }
 }
